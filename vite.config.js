@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/cryptodream-web/',
+  base: '/cli-chat/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

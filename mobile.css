@@ -1,0 +1,63 @@
+/* mobile.css */
+/* ──────────────────────────────────────────────── */
+/* 📱 Mobile-Specific Overrides for Terminal Output */
+/* ──────────────────────────────────────────────── */
+@media (max-width: 600px) {
+
+    body {
+      padding: 0.5rem;
+    }
+  
+    #terminal {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+  
+    #output {
+      font-size: 0.75rem;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+  
+    .ascii-output {
+      font-size: 0.65rem;
+      white-space: pre;
+      overflow-x: auto;
+      display: block;
+      max-width: 100%;
+    }
+  
+    canvas#ascii-canvas {
+      display: none;
+    }
+  
+    #ascii-picker,
+    #tarot-picker {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    #ascii-picker select,
+    #ascii-picker button,
+    #tarot-picker select,
+    #tarot-picker button {
+      font-size: 0.9rem;
+      width: 100%;
+    }
+  
+    #terminal-input {
+      font-size: 0.85rem;
+    }
+  
+    #send-btn {
+      font-size: 0.85rem;
+      padding: 0.4rem 0.8rem;
+    }
+  
+    #ghostlog-download {
+      width: 100%;
+      font-size: 0.85rem;
+    }
+  }
+  
