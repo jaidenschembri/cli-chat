@@ -17,6 +17,11 @@ const outputEl = document.getElementById('output');
 const sendBtn = document.getElementById('send-btn');
 const sendSound = document.getElementById('sfx-send');
 const glitchSound = document.getElementById('sfx-glitch');
+const melvilleSound = document.getElementById('sfx-melville');
+const tarotOpenSound = document.getElementById('sfx-tarot-open');
+const tarotDrawSound = document.getElementById('sfx-tarot-draw');
+
+
 
 // Print to terminal
 function print(text, color = '#00ffcc') {
@@ -24,8 +29,13 @@ function print(text, color = '#00ffcc') {
   span.style.color = color;
   span.textContent = text + '\n';
   outputEl.appendChild(span);
-  outputEl.scrollTop = outputEl.scrollHeight;
+
+  // 🔽 This ensures scroll happens after DOM updates
+  requestAnimationFrame(() => {
+    outputEl.scrollTop = outputEl.scrollHeight;
+  });
 }
+
 
 // Glitchify text
 function glitchify(text) {
@@ -118,6 +128,62 @@ function imageToAscii(url, width = 80, height = 50) {
   });
 }
 
+// THEME SYSTEM
+const themes = {
+  neo: {
+    background: '#000000',
+    text: '#00ffcc',
+    accent: '#ff66cc'
+  },
+  vapor: {
+    background: '#1f0037',
+    text: '#ff8aff',
+    accent: '#8affff'
+  },
+  og: {
+    background: '#111111',
+    text: '#00ff00',
+    accent: '#ff0000'
+  },
+  pink: {
+    background: '#0a0a0a',
+    text: '#ff3399',
+    accent: '#ffcc00'
+  }
+};
+
+function applyTheme(name) {
+  const theme = themes[name];
+  if (!theme) return;
+
+  document.body.style.background = theme.background;
+  document.body.style.color = theme.text;
+
+  document.querySelectorAll('input, select').forEach(el => {
+    el.style.color = theme.accent;
+    el.style.borderColor = theme.text;
+    el.style.background = theme.background;
+  });
+
+  document.querySelectorAll('button').forEach(el => {
+    el.style.background = theme.accent;
+    el.style.color = 'black';
+  });
+
+  localStorage.setItem('theme', name);
+}
+
+function loadSavedTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved) applyTheme(saved);
+}
+
+function scrollToBottom() {
+  requestAnimationFrame(() => {
+    outputEl.scrollTop = outputEl.scrollHeight;
+  });
+}
+
 export {
   figlet,
   inputEl,
@@ -125,11 +191,18 @@ export {
   sendBtn,
   sendSound,
   glitchSound,
+  melvilleSound,
+  tarotOpenSound,
+  tarotDrawSound,
   print,
   glitchify,
   startLoading,
   stopLoading,
   logMemory,
   showLog,
-  imageToAscii
+  imageToAscii,
+  applyTheme,
+  loadSavedTheme,
+  scrollToBottom
 };
+

@@ -19,7 +19,7 @@
     </div>
 
     <!-- 🔮 Tarot Spread Picker -->
-    <div id="tarot-picker" style="display:none; margin-top: 1rem;">
+    <div id="tarot-picker" class="picker-menu" style="display:none;">
       <label for="spread-select" style="color:#ffcc00;">🔮 Choose your spread:</label>
       <select id="spread-select">
         <option value="One card">One card</option>
@@ -32,7 +32,7 @@
     </div>
 
     <!-- 🧾 ASCII Font Picker -->
-    <div id="ascii-picker" style="display:none;">
+    <div id="ascii-picker" class="picker-menu" style="display:none;">
       <label for="ascii-font">🧾 Choose a font:</label>
       <select id="ascii-font">
         <option value="Standard">Standard</option>
@@ -42,6 +42,19 @@
       </select>
       <button id="ascii-confirm">Render</button>
     </div>
+
+    <!-- 🎨 Theme Picker -->
+  <div id="theme-picker" class="picker-menu" style="display:none;">
+    <label for="theme-select" style="color:#ffcc00;">🎨 Choose your theme:</label>
+  <select id="theme-select">
+    <option value="neo">NeoCyber</option>
+    <option value="vapor">Vaporwave</option>
+    <option value="og">Terminal OG</option>
+    <option value="pink">Pink Hell</option>
+  </select>
+  <button id="theme-confirm">Apply</button>
+</div>
+
   </div>
 
   <!-- 📥 Ghostlog Export -->
@@ -55,6 +68,10 @@
   <audio id="sfx-send" src="/assets/mp3-wav/sendmsg.wav" preload="auto"></audio>
   <audio id="sfx-glitch" src="/assets/mp3-wav/glitchmodeboot.wav" preload="auto"></audio>
   <audio id="sfx-reply" src="/assets/mp3-wav/replymsg.wav" preload="auto"></audio>
+  <audio id="sfx-melville" src="/assets/mp3-wav/whale.wav" preload="auto"></audio>
+  <audio id="sfx-tarot-open" src="/assets/mp3-wav/tarot-open.wav" preload="auto"></audio>
+  <audio id="sfx-tarot-draw" src="/assets/mp3-wav/tarot-draw.wav" preload="auto"></audio>
+
 
   <script type="module" src="main.js"></script>
 </body>

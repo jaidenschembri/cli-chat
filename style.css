@@ -42,44 +42,6 @@ body {
   cursor: pointer;
 }
 
-#tarot-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 300px;
-  margin-top: 1rem;
-}
-
-#spread-select {
-  background: black;
-  color: #ff66cc;
-  border: 1px solid #00ffcc;
-  font-family: monospace;
-  font-size: 1rem;
-  padding: 0.4rem;
-  outline: none;
-}
-
-#spread-select option {
-  background: black;
-  color: #00ffcc;
-}
-
-#spread-confirm {
-  background: #00ffcc;
-  color: black;
-  border: none;
-  font-weight: bold;
-  font-family: monospace;
-  padding: 0.5rem;
-  cursor: pointer;
-}
-
-#spread-confirm:hover {
-  background: #ff66cc;
-  color: black;
-}
-
 #ghostlog-download {
   margin-top: 1rem;
   background: #00ffcc;
@@ -95,22 +57,21 @@ body {
   background: #ff66cc;
 }
 
-
-#ascii-picker {
+/* 🔧 Shared Picker Menu Styles */
+.picker-menu {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   gap: 0.5rem;
+  max-width: 300px;
   margin-top: 1rem;
-  flex-wrap: wrap;
 }
 
-#ascii-picker label {
+.picker-menu label {
   color: #ffcc00;
   font-family: monospace;
 }
 
-#ascii-font {
+.picker-menu select {
   background: black;
   color: #ff66cc;
   border: 1px solid #00ffcc;
@@ -120,16 +81,21 @@ body {
   outline: none;
 }
 
-#ascii-confirm {
+.picker-menu option {
+  background: black;
+  color: #00ffcc;
+}
+
+.picker-menu button {
   background: #00ffcc;
   color: black;
   border: none;
   font-weight: bold;
   font-family: monospace;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   cursor: pointer;
 }
 
-#ascii-confirm:hover {
+.picker-menu button:hover {
   background: #ff66cc;
 }
