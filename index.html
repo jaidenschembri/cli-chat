@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>cryptodream.exe</title>
+  <script type="module" crossorigin src="/cryptodream-web/assets/index-BaFZRFFw.js"></script>
+  <link rel="stylesheet" crossorigin href="/cryptodream-web/assets/index-CT7RQPuZ.css">
+</head>
+<body>
+  <div id="terminal">
+    <pre id="output">🧠 cryptodream.exe loaded. Type /manual
+</pre>
+
+    <div id="input-wrapper">
+      <input id="terminal-input" type="text" autocomplete="off" placeholder="> You:">
+      <button id="send-btn">SEND</button>
+    </div>
+
+    <!-- 🔮 Tarot Spread Picker -->
+    <div id="tarot-picker" style="display:none; margin-top: 1rem;">
+      <label for="spread-select" style="color:#ffcc00;">🔮 Choose your spread:</label>
+      <select id="spread-select">
+        <option value="One card">One card</option>
+        <option value="Three cards">Three cards</option>
+        <option value="Celtic cross">Celtic cross</option>
+        <option value="Show me the deck">Show me the deck</option>
+        <option value="Cancel">Return to ghost</option>
+      </select>
+      <button id="spread-confirm">Draw</button>
+    </div>
+
+    <!-- 🧾 ASCII Font Picker -->
+    <div id="ascii-picker" style="display:none;">
+      <label for="ascii-font">🧾 Choose a font:</label>
+      <select id="ascii-font">
+        <option value="Standard">Standard</option>
+        <option value="Doom">Doom</option>
+        <option value="Slant">Slant</option>
+        <option value="Cyberlarge">Cyberlarge</option>
+      </select>
+      <button id="ascii-confirm">Render</button>
+    </div>
+  </div>
+
+  <!-- 📥 Ghostlog Export -->
+  <button id="ghostlog-download" style="display:none;">📥 Download Ghostlog</button>
+
+  <!-- 🖼️ ASCII Canvas + Upload -->
+  <canvas id="ascii-canvas" width="80" height="80" style="display:none;"></canvas>
+  <input type="file" id="ascii-upload" accept="image/*" style="display:none;">
+
+  <!-- 🎧 Sound FX -->
+  <audio id="sfx-send" src="/cryptodream-web/assets/sendmsg-iRGY44gv.wav" preload="auto"></audio>
+  <audio id="sfx-glitch" src="/cryptodream-web/assets/glitchmodeboot-DLiBvdqZ.wav" preload="auto"></audio>
+  <audio id="sfx-reply" src="/assets/mp3-wav/replymsg.wav" preload="auto"></audio>
+
+</body>
+</html>
