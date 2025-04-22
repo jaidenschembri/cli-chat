@@ -1,0 +1,20 @@
+{
+  "name": "cryptodream-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "vite build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "figlet": "^1.8.1"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0",
+    "vite": "^6.3.1"
+  },
+  "homepage": "https://github.com/jaidenschembri/cli-chat"
+}

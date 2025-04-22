@@ -1,0 +1,135 @@
+body {
+  background: black;
+  color: #00ffcc;
+  font-family: monospace;
+  margin: 0;
+  padding: 1rem;
+}
+
+#terminal {
+  max-width: 800px;
+  margin: auto;
+}
+
+#output {
+  white-space: pre-wrap;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  min-height: 300px;
+}
+
+#input-wrapper {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#terminal-input {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  background: black;
+  border: 1px solid #00ffcc;
+  color: #ff66cc;
+}
+
+#send-btn {
+  background: #ff3399;
+  border: none;
+  color: black;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+#tarot-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 300px;
+  margin-top: 1rem;
+}
+
+#spread-select {
+  background: black;
+  color: #ff66cc;
+  border: 1px solid #00ffcc;
+  font-family: monospace;
+  font-size: 1rem;
+  padding: 0.4rem;
+  outline: none;
+}
+
+#spread-select option {
+  background: black;
+  color: #00ffcc;
+}
+
+#spread-confirm {
+  background: #00ffcc;
+  color: black;
+  border: none;
+  font-weight: bold;
+  font-family: monospace;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+#spread-confirm:hover {
+  background: #ff66cc;
+  color: black;
+}
+
+#ghostlog-download {
+  margin-top: 1rem;
+  background: #00ffcc;
+  color: black;
+  border: none;
+  font-weight: bold;
+  font-family: monospace;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+#ghostlog-download:hover {
+  background: #ff66cc;
+}
+
+
+#ascii-picker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+#ascii-picker label {
+  color: #ffcc00;
+  font-family: monospace;
+}
+
+#ascii-font {
+  background: black;
+  color: #ff66cc;
+  border: 1px solid #00ffcc;
+  font-family: monospace;
+  font-size: 1rem;
+  padding: 0.4rem;
+  outline: none;
+}
+
+#ascii-confirm {
+  background: #00ffcc;
+  color: black;
+  border: none;
+  font-weight: bold;
+  font-family: monospace;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+#ascii-confirm:hover {
+  background: #ff66cc;
+}
