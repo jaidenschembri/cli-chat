@@ -17,7 +17,18 @@ body {
   font-size: 1rem;
   line-height: 1.4;
   min-height: 300px;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE/Edge */
 }
+
+/* Chrome + WebKit: hide scrollbar */
+#output::-webkit-scrollbar {
+  display: none;
+}
+
+
 
 #input-wrapper {
   display: flex;
@@ -98,4 +109,103 @@ body {
 
 .picker-menu button:hover {
   background: #ff66cc;
+}
+
+/* 🔧 CRT Scanlines Effect (Visible + Subtle Flicker) */
+.crt-effect::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.2) 1px,
+    transparent 1.5px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.8;
+  animation: flicker 0.2s infinite alternate;
+  mix-blend-mode: multiply;
+}
+
+/* 🌟 Subtle Text Glow (Restored to Original) */
+.crt-glow {
+  text-shadow: 0 0 6px currentColor;
+}
+
+/* 🌈 Glow Pulse Animation */
+@keyframes flicker {
+  0% {
+    opacity: 0.75;
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 0.85;
+    filter: brightness(1.15);
+  }
+}
+
+/* 🌀 Stronger Curvature Shading */
+.crt-curve::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.3) 80%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* 👻 Haunting HUD */
+#presence-hud {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  width: 120px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #ff3399;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+#presence-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00ffcc, #ff3399);
+  transition: width 0.5s ease, background 0.5s ease;
+}
+
+#presence-hud.haunted #presence-bar {
+  animation: glitchPulse 1s infinite alternate;
+}
+
+@keyframes glitchPulse {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.5) saturate(1.5); }
+}
+
+/* 👻 Terminal Flicker Animation */
+@keyframes terminalFlicker {
+  0% { background-color: black; }
+  25% { background-color: #220022; }
+  50% { background-color: #330000; }
+  75% { background-color: #110022; }
+  100% { background-color: black; }
+}
+
+body.flickering {
+  animation: terminalFlicker 1s infinite alternate;
 }

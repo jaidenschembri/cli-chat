@@ -1,11 +1,18 @@
 // main.js
 import { handleInput } from './js/commands.js';
-import { inputEl, sendBtn } from './js/utils.js';
-import { loadSavedTheme } from './js/utils.js';
-loadSavedTheme();
+import { inputEl, sendBtn, runBootSequence, loadSavedTheme } from './js/utils.js';
 
-
-inputEl.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') handleInput();
+// Wait for the DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load saved theme first (so boot sequence uses correct colors)
+  loadSavedTheme();
+  
+  // Run boot sequence
+  await runBootSequence();
+  
+  // Set up event listeners
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleInput();
+  });
+  sendBtn.addEventListener('click', handleInput);
 });
-sendBtn.addEventListener('click', handleInput);

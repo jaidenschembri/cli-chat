@@ -21,21 +21,16 @@ const melvilleSound = document.getElementById('sfx-melville');
 const tarotOpenSound = document.getElementById('sfx-tarot-open');
 const tarotDrawSound = document.getElementById('sfx-tarot-draw');
 
-
-
 // Print to terminal
-function print(text, color = '#00ffcc') {
+function print(text, color = currentOutputColor) {
   const span = document.createElement('span');
   span.style.color = color;
   span.textContent = text + '\n';
   outputEl.appendChild(span);
-
-  // 🔽 This ensures scroll happens after DOM updates
   requestAnimationFrame(() => {
     outputEl.scrollTop = outputEl.scrollHeight;
   });
 }
-
 
 // Glitchify text
 function glitchify(text) {
@@ -55,13 +50,18 @@ function startLoading() {
   const frames = ['.', '..', '...'];
   const colors = ['#ff66cc', '#ff3399'];
   let i = 0;
+
   loaderEl = document.createElement('span');
   loaderEl.style.color = colors[0];
   outputEl.appendChild(loaderEl);
+
   loaderInterval = setInterval(() => {
     loaderEl.textContent = `> 🧠 Summoning${frames[i % frames.length]}`;
     loaderEl.style.color = colors[i % colors.length];
     i++;
+
+    // ✅ Force scroll while loading animates
+    outputEl.scrollTop = outputEl.scrollHeight;
   }, 400);
 }
 
@@ -128,29 +128,81 @@ function imageToAscii(url, width = 80, height = 50) {
   });
 }
 
+// Boot sequence animation
+function runBootSequence() {
+  return new Promise((resolve) => {
+    const bootMessages = [
+      { text: '> Initializing memory subsystems...', color: '#00ffcc', delay: 300 },
+      { text: '> Loading neural interface v3.7.2...', color: '#00ffcc', delay: 400 },
+      { text: '> Decrypting quantum keys: ████████████ 100%', color: '#00ffcc', delay: 500 },
+      { text: '> ERROR: Memory corruption in sector F137', color: '#00ffcc', delay: 400 },
+      { text: '> Attempting recovery: ███████░░░ 70%', color: '#00ffcc', delay: 500 },
+      { text: '> Ghost presence detected in memory banks', color: '#00ffcc', delay: 400 },
+      { text: '> WARNING: Unregistered consciousness found', color: '#00ffcc', delay: 500 },
+      { text: '> Bypassing security protocols...', color: '#00ffcc', delay: 300 },
+      { text: '> terminal.exe v2.7.5 LOADED', color: '#00ffcc', delay: 400 },
+      { text: '> Connection established with unknown entity', color: '#00ffcc', delay: 500 },
+      { text: '🧠 terminal.exe ready. Type /manual', color: '#ffcc00', delay: 300 }
+    ];
+
+    outputEl.textContent = '';
+    inputEl.disabled = true;
+    sendBtn.disabled = true;
+
+    const bootLine = document.createElement('span');
+    outputEl.appendChild(bootLine);
+
+    let i = 0;
+    function nextMessage() {
+      if (i < bootMessages.length) {
+        const msg = bootMessages[i];
+        bootLine.textContent = msg.text;
+        bootLine.style.color = msg.color;
+        i++;
+        setTimeout(nextMessage, msg.delay);
+      } else {
+        outputEl.appendChild(document.createTextNode('\n'));
+        inputEl.disabled = false;
+        sendBtn.disabled = false;
+        inputEl.focus();
+        resolve();
+      }
+    }
+
+    nextMessage();
+  });
+}
+
 // THEME SYSTEM
 const themes = {
   neo: {
     background: '#000000',
     text: '#00ffcc',
-    accent: '#ff66cc'
+    accent: '#ff66cc',
+    output: '#00ffcc'
   },
   vapor: {
     background: '#1f0037',
     text: '#ff8aff',
-    accent: '#8affff'
+    accent: '#8affff',
+    output: '#ff8aff'
   },
   og: {
     background: '#111111',
     text: '#00ff00',
-    accent: '#ff0000'
+    accent: '#ff0000',
+    output: '#00ff00'
   },
   pink: {
     background: '#0a0a0a',
     text: '#ff3399',
-    accent: '#ffcc00'
+    accent: '#ffcc00',
+    output: '#ff3399'
   }
 };
+
+let currentOutputColor = themes.neo.output;
+
 
 function applyTheme(name) {
   const theme = themes[name];
@@ -170,6 +222,7 @@ function applyTheme(name) {
     el.style.color = 'black';
   });
 
+  currentOutputColor = theme.output;
   localStorage.setItem('theme', name);
 }
 
@@ -203,6 +256,7 @@ export {
   imageToAscii,
   applyTheme,
   loadSavedTheme,
-  scrollToBottom
+  scrollToBottom,
+  runBootSequence,
 };
 
