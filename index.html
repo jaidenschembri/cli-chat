@@ -20,7 +20,7 @@
 
     <!-- 🔮 Tarot Spread Picker -->
     <div id="tarot-picker" class="picker-menu" style="display:none;">
-      <label for="spread-select" style="color:#ffcc00;">🔮 Choose your spread:</label>
+      <label for="spread-select" style="color:#00ffcc;">🔮 Choose your spread:</label>
       <select id="spread-select">
         <option value="One card">One card</option>
         <option value="Three cards">Three cards</option>
@@ -43,22 +43,10 @@
       <button id="ascii-confirm">Render</button>
     </div>
 
-    <!-- 🎨 Theme Picker -->
-  <div id="theme-picker" class="picker-menu" style="display:none;">
-    <label for="theme-select" style="color:#ffcc00;">🎨 Choose your theme:</label>
-  <select id="theme-select">
-    <option value="neo">NeoCyber</option>
-    <option value="vapor">Vaporwave</option>
-    <option value="og">Terminal OG</option>
-    <option value="pink">Pink Hell</option>
-  </select>
-  <button id="theme-confirm">Apply</button>
-</div>
-
   </div>
 
   <!-- 📥 Ghostlog Export -->
-  <button id="ghostlog-download" style="display:none;">📥 Download Ghostlog</button>
+  <button id="ghostlog-download" style="display:none;">Download Ghostlog</button>
 
   <!-- 🖼️ ASCII Canvas + Upload -->
   <canvas id="ascii-canvas" width="80" height="80" style="display:none;"></canvas>
@@ -72,13 +60,9 @@
   <audio id="sfx-tarot-open" src="/assets/mp3-wav/tarot-open.wav" preload="auto"></audio>
   <audio id="sfx-tarot-draw" src="/assets/mp3-wav/tarot-draw.wav" preload="auto"></audio>
 
-
   <script type="module" src="main.js"></script>
   
-  <!-- 👁️ Haunting Presence HUD -->
-<div id="presence-hud" style="display:none;">
-  <div id="presence-bar"></div>
-</div>
+  
 
 </body>
 </html>

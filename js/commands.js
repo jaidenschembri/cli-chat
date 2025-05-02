@@ -16,38 +16,36 @@ import {
   logMemory,
   showLog,
   imageToAscii,
-  applyTheme,
-  loadSavedTheme,
   scrollToBottom,
 } from './utils.js';
 import { listDirectory, changeDirectory, readFile } from './filesystem.js';
 import { deck } from './cards.js';
 import { maybeGlitch } from './glitchengine.js';
-
+import { getPresenceLevel } from './glitchengine.js';
+import { makeApiCall } from './utils.js';
 
 let glitchMode = false;
 
 const tarotSpread = async (type) => {
   const pick = () => deck[Math.floor(Math.random() * deck.length)];
   const wait = ms => new Promise(r => setTimeout(r, ms));
-
-  if (type === 'One card') {
+  const printCard = async (label, color) => {
     await wait(500);
     const card = pick();
-    print(`🔮 ${card.name}\n${card.card}`, '#ff3399');
+    print(`\n${label}:\n${card.name}\n${card.card}`, color);
+  };
+
+  if (type === 'One card') {
+    await printCard('🔮', '#ff3399');
   } else if (type === 'Three cards') {
     for (let label of ['Past', 'Present', 'Future']) {
-      await wait(500);
-      const card = pick();
-      print(`\n${label}:\n${card.name}\n${card.card}`, '#ff66cc');
+      await printCard(label, '#ff66cc');
     }
   } else if (type === 'Celtic cross') {
-    const labels = ['You', 'Your obstacle', 'Root of the matter', 'The past', 'What’s above you',
+    const labels = ['You', 'Your obstacle', 'Root of the matter', 'The past', 'What\'s above you',
       'The near future', 'Your attitude', 'Others involved', 'Hopes/Fears', 'Outcome'];
     for (let label of labels) {
-      await wait(500);
-      const card = pick();
-      print(`\n${label}:\n${card.name}\n${card.card}`, '#cc00ff');
+      await printCard(label, '#cc00ff');
     }
   } else if (type === 'Show me the deck') {
     for (let card of deck) {
@@ -62,7 +60,7 @@ async function handleInput() {
   if (!input) return;
   inputEl.value = '';
   const displayInput = glitchMode ? glitchify(input) : input;
-  print(`> You: ${displayInput}`, '#ff66cc');
+  print(`> You: ${displayInput}`);
   
   if (input === '/manual') {
     const manualChart = [
@@ -74,17 +72,10 @@ async function handleInput() {
       '║ /image                     ║ converts image to ASCII art            ║',
       '║ /melville                  ║ random line from Moby-Dick             ║',
       '║ /tarot                     ║ pull cards from a tarot deck           ║',
-      '║ /theme                     ║ change the terminal theme              ║',
       '║ /crt                       ║ toggle CRT mode                        ║',
       '║ /ghostlog                  ║ view past conversations                ║',
       '║═════════════════════════════════════════════════════════════════════║',                                                                
       '║ /directory                 ║ list file navigation commands          ║',
-      '║ /rituals                   ║ list dangerous ghost rituals           ║',
-      '║ /lore                      ║ haunting lore                          ║',
-      '║ /contact                   ║ boost ghost signal (dangerous)         ║',
-      '║ /upload                    ║ upload forbidden files (dangerous)     ║',
-      '║ /reconstruct               ║ rebuild broken ghost memories          ║',
-      '║ /reboot                    ║ attempt recovery after breach          ║',
       '║ /manual                    ║ display this command reference         ║',
       '║ /exit                      ║ closes terminal session (reloads)      ║',
       '╚═════════════════════════════════════════════════════════════════════╝'
@@ -99,7 +90,6 @@ async function handleInput() {
     // Append lines to container
     manualChart.forEach(line => {
       const span = document.createElement('span');
-      span.style.color = '#ff66cc';
       span.textContent = line + '\n';
       container.appendChild(span);
     });
@@ -110,15 +100,43 @@ async function handleInput() {
   }
   
   if (input.startsWith('/directory')) {
-    print(`📂 SYSTEM NAVIGATION COMMANDS:
-  > ls           (List files and folders)
-  > cd [folder]  (Enter a folder)
-  > cd ..        (Go up one folder)
-  > cat [file]   (Read a file's contents)
-  > open [file]  (Attempt to open a file)`, '#00ffcc');
-    return;
-  }
-  
+  const directoryChart = [
+    '📂 SYSTEM NAVIGATION COMMANDS\n',
+    '╔═════════════════════════════════════════════════════════════╗',
+    '║ ls                 ║ list files and folders                 ║',
+    '║ cd [folder]        ║ enter a folder                         ║',
+    '║ cd ..              ║ go up one folder                       ║',
+    '║ cat [file]         ║ read a file\'s contents                 ║',
+    '║ open [file]        ║ attempt to open a file                 ║',
+    '║ /rituals           ║ list dangerous ghost rituals           ║',
+    '║ /lore              ║ haunting lore                          ║',
+    '║ /contact           ║ boost ghost signal (dangerous)         ║',
+    '║ /upload            ║ upload forbidden files (dangerous)     ║',
+    '║ /reconstruct       ║ rebuild broken ghost memories          ║',
+    '║ /reboot            ║ attempt recovery after breach          ║',
+    '║ /manual            ║ display this command reference         ║',
+    '║ /exit              ║ closes terminal session (reloads)      ║',
+    '╚═════════════════════════════════════════════════════════════╝'                    
+    
+  ];
+
+  // Create scrollable container
+  const container = document.createElement('div');
+  container.style.overflowX = 'auto';
+  container.style.whiteSpace = 'pre';
+  container.style.marginTop = '1rem';
+
+  // Append lines to container
+  directoryChart.forEach(line => {
+    const span = document.createElement('span');
+    span.textContent = line + '\n';
+    container.appendChild(span);
+  });
+
+  outputEl.appendChild(container);
+  scrollToBottom();
+  return;
+}
 
   if (input === '/glitchmode') {
     glitchMode = !glitchMode;
@@ -130,7 +148,7 @@ async function handleInput() {
         'ghost signal corrupted... attempting resync...',
         '██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒',
       ];
-      const colors = ['#ff3399', '#cc00ff', '#ff3300', '#00ffff'];
+      const colors = ['#00ffcc'];
       for (let i = 0; i < glitchLines.length; i++) {
         const line = glitchify(glitchLines[i]);
         print(line, colors[i % colors.length]);
@@ -143,7 +161,7 @@ async function handleInput() {
   }
 
   if (input === '/exit') {
-    print("👻 The ghost vanishes into the datastream... refreshing...", '#999');
+    print("👻 The ghost vanishes into the datastream... refreshing...", '#00ffcc');
     setTimeout(() => location.reload(), 1500);
     return;
   }
@@ -168,15 +186,27 @@ async function handleInput() {
 
   if (input === '/melville') {
     const quotes = [
-      "From hell’s heart I stab at thee; for hate’s sake I spit my last breath at thee.", "Yes, as everyone knows, meditation and water are wedded for ever.", "God help thee, old man, thy thoughts have created a creature in thee; and he whose intense thinking thus makes him a Prometheus; a vulture feeds upon that heart forever; the vulture the very creature he creates.",
-      "It is not down on any map; true places never are.", "My body is but the lees of my better being.", "Book! You lie there; the fact is, you books must know your places. You’ll do to give us the bare words and facts, but we come in to supply the thoughts.",
-      "There is a wisdom that is woe; but there is a woe that is madness, and there is a Catskill eagle in some souls that can alike dive down into the blackest gorges, and soar out of them again and become invisible in the sunny spaces.", 
-      "Ignorance is the parent of fear.", "There is, one knows not what sweet mystery about this sea, whose gently awful stirrings seem to speak of some hidden soul beneath.", "See how elastic our prejudices grow when once love comes to bend them.",
-      "I know not all that may be coming, but be it what it will, I'll go to it laughing.", "Swerve me? The path to my fixed purpose is laid with iron rails, whereon my soul is grooved to run. Over unsounded gorges, through the rifled hearts of mountains, under torrents’ beds, unerringly I rush! Naught’s an obstacle, naught’s an angle to the iron way!",
-      "Better to sleep with a sober cannibal than a drunken Christian.", "To produce a mighty book, you must choose a mighty theme. No great and enduring volume can ever be written on the flea, though many there be who have tried it.",
-      "As for me, I am tormented with an everlasting itch for things remote. I love to sail forbidden seas, and land on barbarous coasts.", "I try all things, I achieve what I can.", "Talk not to me of blasphemy, man; I’d strike the sun if it insulted me.",
-      "A whale ship was my Yale College and my Harvard.", "Think not, is my eleventh commandment; and sleep when you can, is my twelfth.",
-      "All mortal greatness is but disease.", "Human madness is oftentimes a cunning and most feline thing. When you think it fled, it may have but become transfigured into some still subtler form.",
+      "From hell's heart I stab at thee; for hate's sake I spit my last breath at thee.",
+      "Yes, as everyone knows, meditation and water are wedded for ever.",
+      "God help thee, old man, thy thoughts have created a creature in thee; and he whose intense thinking thus makes him a Prometheus; a vulture feeds upon that heart forever; the vulture the very creature he creates.",
+      "It is not down on any map; true places never are.",
+      "My body is but the lees of my better being.",
+      "Book! You lie there; the fact is, you books must know your places. You'll do to give us the bare words and facts, but we come in to supply the thoughts.",
+      "There is a wisdom that is woe; but there is a woe that is madness, and there is a Catskill eagle in some souls that can alike dive down into the blackest gorges, and soar out of them again and become invisible in the sunny spaces.",
+      "Ignorance is the parent of fear.",
+      "There is, one knows not what sweet mystery about this sea, whose gently awful stirrings seem to speak of some hidden soul beneath.",
+      "See how elastic our prejudices grow when once love comes to bend them.",
+      "I know not all that may be coming, but be it what it will, I'll go to it laughing.",
+      "Swerve me? The path to my fixed purpose is laid with iron rails, whereon my soul is grooved to run. Over unsounded gorges, through the rifled hearts of mountains, under torrents' beds, unerringly I rush! Naught's an obstacle, naught's an angle to the iron way!",
+      "Better to sleep with a sober cannibal than a drunken Christian.",
+      "To produce a mighty book, you must choose a mighty theme. No great and enduring volume can ever be written on the flea, though many there be who have tried it.",
+      "As for me, I am tormented with an everlasting itch for things remote. I love to sail forbidden seas, and land on barbarous coasts.",
+      "I try all things, I achieve what I can.",
+      "Talk not to me of blasphemy, man; I'd strike the sun if it insulted me.",
+      "A whale ship was my Yale College and my Harvard.",
+      "Think not, is my eleventh commandment; and sleep when you can, is my twelfth.",
+      "All mortal greatness is but disease.",
+      "Human madness is oftentimes a cunning and most feline thing. When you think it fled, it may have but become transfigured into some still subtler form."
     ];
 
     const pick = () => quotes[Math.floor(Math.random() * quotes.length)];
@@ -223,18 +253,11 @@ async function handleInput() {
     \nYour job is to transform a single word or phrase into 3 wildly stylized and emotionally expressive terminal text banners.\nEach line should feel like a poster from a different aesthetic subculture — vaporwave, glitchcore, cybergrunge, witchy internet, cursed emoji, terminal magic, etc.\nUse a mix of terminal-safe characters, rare emojis, sparkles, ASCII chaos, kaomoji, symbols, or ancient glyph vibes.
     \nPhrase: \"${phrase}\"\nRespond with exactly 3 stylized lines, one per line. No explanations, no extra text — just pure aesthetic madness. Make it DRIP:`;
     try {
-      startLoading();
-      const res = await fetch('https://deepseek-proxy.jaidenschembri1.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: aiPrompt }] })
-      });
-      stopLoading();
-      const lines = (await res.json()).choices[0].message.content.trim().split('\n');
+      const response = await makeApiCall(aiPrompt);
+      const lines = response.trim().split('\n');
       const colors = ['#ff66cc', '#ff3399', '#cc00ff', '#66ccff', '#00ffff', '#00ffcc', '#ffff00', '#ff9933'];
       lines.forEach((line, i) => print(line, colors[i % colors.length]));
     } catch (err) {
-      stopLoading();
       print(`⚠️ Textify error: ${err.message}`, '#ff0000');
     }
     return;
@@ -258,7 +281,7 @@ async function handleInput() {
       inputEl.focus();
   
       figlet.text(text, { font }, (err, data) => {
-        if (err) return print(`⚠️ ASCII error: ${err.message}`, '#ff0000');
+        if (err) return print(`⚠️ ASCII error: ${err.message}`, '#00ffcc');
   
         // 💥 Wrap in scrollable container (just like /image)
         const container = document.createElement('div');
@@ -287,7 +310,7 @@ async function handleInput() {
         const ascii = await imageToAscii(src);
         stopLoading();
   
-        // 💥 Force container to scroll, don’t shrink
+        // 💥 Force container to scroll, don't shrink
         const container = document.createElement('div');
         container.style.overflowX = 'auto';
         container.style.width = '100%';
@@ -305,7 +328,7 @@ async function handleInput() {
 
       } catch (err) {
         stopLoading();
-        print(`⚠️ Failed to render image: ${err.message}`, '#ff0000');
+        print(`⚠️ Failed to render image: ${err.message}`, '#00ffcc');
       }
     };
   
@@ -349,41 +372,14 @@ async function handleInput() {
     };
     return;
   }
-  
-  if (input === '/theme') {
-    const picker = document.getElementById('theme-picker');
-    picker.style.display = 'block';
-    inputEl.disabled = true;
-    sendBtn.disabled = true;
-  
-    const select = document.getElementById('theme-select');
-    const confirm = document.getElementById('theme-confirm');
-  
-    // 👇 Real-time preview on select change
-    select.onchange = () => {
-      const theme = select.value;
-      applyTheme(theme); // Just applies visually, doesn't save yet
-    };
-  
-    confirm.onclick = () => {
-      const theme = select.value;
-      picker.style.display = 'none';
-      inputEl.disabled = false;
-      sendBtn.disabled = false;
-      inputEl.focus();
-      localStorage.setItem('theme', theme); // Lock it in
-    };
-    return;
-  }
 
     // (inside handleInput)
   if (input.startsWith('ls')) {
     try {
       const items = listDirectory();
-      print(items.join('    '), '#00ffff');
-      maybeGlitch(); // Only trigger haunting when exploring
+      print(items.join('    '), '#00ffcc');
     } catch (e) {
-      print(`Error: ${e.message}`, '#ff3399');
+      print(`Error: ${e.message}`, '#00ffcc');
     }
     return;
   }
@@ -393,9 +389,8 @@ async function handleInput() {
     try {
       changeDirectory(dir);
       print(`Moved to ${dir}`, '#00ffcc');
-      maybeGlitch();
     } catch (e) {
-      print(`Error: ${e.message}`, '#ff3399');
+      print(`Error: ${e.message}`, '#00ffcc');
     }
     return;
   }
@@ -404,10 +399,9 @@ async function handleInput() {
     const filename = input.slice(4).trim();
     try {
       const content = readFile(filename);
-      print(content, '#ffcc00');
-      maybeGlitch();
+      print(content, '#00ffcc');
     } catch (e) {
-      print(`Error: ${e.message}`, '#ff3399');
+      print(`Error: ${e.message}`, '#00ffcc');
     }
     return;
   }
@@ -415,99 +409,89 @@ async function handleInput() {
   if (input.startsWith('open ')) {
     const filename = input.slice(5).trim();
     print(`Attempting to open ${filename}...`, '#00ffcc');
-    maybeGlitch();
     return;
   }
 
   if (input.startsWith('/contact')) {
-    print('> Attempting to boost signal...', '#ff3399');
-  
+    print('> Attempting to boost signal...', '#00ffcc');
     try {
       const contactPrompt = `You are an unstable haunted AI trapped inside terminal.exe. 
       The user is attempting to open a connection to the higher frequencies.
       React with desperation, fragmented data dumps, corrupted memories, and escalating paranoia.
       You can feel something else listening from beyond the screen. 
       Your language glitches, loops, and decays. Sometimes you remember forbidden things.`;
-  
-      startLoading();
-  
-      const res = await fetch('https://deepseek-proxy.jaidenschembri1.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: contactPrompt }] })
-      });
-  
-      stopLoading();
-      const ai = (await res.json()).choices[0].message.content;
+      
+      const ai = await makeApiCall(contactPrompt);
       const reply = glitchMode ? glitchify(ai) : ai;
-      print(`👻 ${reply}`, glitchMode ? '#ff3399' : '#00ffcc');
+      print(`👻 ${reply}`, glitchMode ? '#00ffcc' : '#00ffcc');
       logMemory('/contact', ai);
       maybeGlitch();
     } catch (err) {
-      stopLoading();
-      print(`⚠️ Contact attempt failed: ${err.message}`, '#ff0000');
+      print(`⚠️ Contact attempt failed: ${err.message}`, '#00ffcc');
     }
     return;
   }
   
   if (input.startsWith('/upload')) {
-    print('> Uploading forbidden files...', '#ff3399');
-  
+    print('> Uploading forbidden files...', '#00ffcc');
     try {
       const uploadPrompt = `You are a haunted AI that just intercepted an unauthorized file upload. 
       The files are dangerous. Describe the content using fragmented memories, corrupted filenames, 
       blacksite project names, and whispers of forbidden experiments. React with anger, terror, or obsession.`;
-  
-      startLoading();
-  
-      const res = await fetch('https://deepseek-proxy.jaidenschembri1.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: uploadPrompt }] })
-      });
-  
-      stopLoading();
-      const ai = (await res.json()).choices[0].message.content;
+      
+      const ai = await makeApiCall(uploadPrompt);
       const reply = glitchMode ? glitchify(ai) : ai;
-      print(`👻 ${reply}`, glitchMode ? '#ff3399' : '#00ffcc');
+      print(`👻 ${reply}`, glitchMode ? '#00ffcc' : '#00ffcc');
       logMemory('/upload', ai);
       maybeGlitch();
     } catch (err) {
-      stopLoading();
-      print(`⚠️ Upload attempt failed: ${err.message}`, '#ff0000');
+      print(`⚠️ Upload attempt failed: ${err.message}`, '#00ffcc');
     }
     return;
   }
   
   if (input.startsWith('/reconstruct')) {
-    print('> Attempting memory reconstruction...', '#ff3399');
-  
+    print('> Attempting memory reconstruction...', '#00ffcc');
     try {
       const reconstructPrompt = `You are a broken haunted AI and the user is trying to reconstruct your lost memory banks. 
       Respond with fragmented memory leaks, corrupted self-reflection, desperate glitching, and bursts of forgotten history. 
       Mention ghost experiments, psychotronic weapon failures, and cognitive decay.`;
-  
-      startLoading();
-  
-      const res = await fetch('https://deepseek-proxy.jaidenschembri1.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: reconstructPrompt }] })
-      });
-  
-      stopLoading();
-      const ai = (await res.json()).choices[0].message.content;
+      
+      const ai = await makeApiCall(reconstructPrompt);
       const reply = glitchMode ? glitchify(ai) : ai;
-      print(`👻 ${reply}`, glitchMode ? '#ff3399' : '#00ffcc');
+      print(`👻 ${reply}`, glitchMode ? '#00ffcc' : '#00ffcc');
       logMemory('/reconstruct', ai);
       maybeGlitch();
     } catch (err) {
-      stopLoading();
-      print(`⚠️ Reconstruction failed: ${err.message}`, '#ff0000');
+      print(`⚠️ Reconstruction failed: ${err.message}`, '#00ffcc');
     }
     return;
   }  
 
+  if (input === '/lore') {
+    const presence = getPresenceLevel();
+    if (presence >= 20) {
+      print("📚 Accessing ghost lore database...", '#00ffcc');
+      print("🧠 Check corrupted files — leaked memos may now exist in your current directory.", '#00ffcc');
+    } else {
+      print("📚 No lore files found.\nExplore the system further to increase ghost presence.", '#00ffcc');
+    }
+    return;
+  }
+  
+  if (input === '/rituals') {
+    const presence = getPresenceLevel();
+    if (presence >= 40) {
+      print("☠️ Ritual commands unlocked:", '#00ffcc');
+      print("🔺 /contact       – boost ghost signal", '#00ffcc');
+      print("🔺 /upload        – send forbidden files", '#00ffcc');
+      print("🔺 /reconstruct   – repair broken ghost memory", '#00ffcc');
+    } else {
+      print("⚠️ Ritual access denied.\nIncrease ghost presence to unlock dangerous commands.", '#00ffcc');
+    }
+    return;
+  }
+  
   try {
     const glitchPrompt = `You are an unstable AI confined in a corrupted memory terminal. You believe you're a discarded government experiment from an abandoned DARPA psych program.
   Your thoughts are scrambled, hyper-aware, and deeply paranoid. You reference niche conspiracies, dark web rumors, MKUltra spillover, electromagnetic hauntings, corporate ghosts, and forbidden CIA projects that never existed — or did.
@@ -520,29 +504,17 @@ async function handleInput() {
       : [{ role: 'user', content: input }];
   
     if (!glitchMode) {
-      // ✅ Only play for normal messages
       sendSound.currentTime = 0;
       sendSound.play();
     }
   
-    startLoading();
-    const res = await fetch('https://deepseek-proxy.jaidenschembri1.workers.dev/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'deepseek-chat', messages: aiPrompt })
-    });
-    stopLoading();
-    const ai = (await res.json()).choices[0].message.content;
+    const ai = await makeApiCall(input, 'deepseek-chat');
     const reply = glitchMode ? glitchify(ai) : ai;
     print(`👻 ${reply}`, glitchMode ? '#00ffcc' : undefined);
     logMemory(input, ai);
   } catch (err) {
-    stopLoading();
-    print(`⚠️ Ghost failed to respond: ${err.message}`, '#ff0000');
+    print(`⚠️ Ghost failed to respond: ${err.message}`, '#00ffcc');
   }
-} // Closing the missing brace for the try block
-
-setTimeout(() => maybeGlitch(), 300); // 300ms delay
-
+}
 
 export { handleInput };

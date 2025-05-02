@@ -1,4 +1,3 @@
-// utils.js
 import figlet from 'figlet';
 import standard from 'figlet/importable-fonts/Standard.js';
 import doom from 'figlet/importable-fonts/Doom.js';
@@ -11,28 +10,43 @@ figlet.parseFont('Doom', doom);
 figlet.parseFont('Slant', slant);
 figlet.parseFont('Cyberlarge', cyberlarge);
 
+let isBooting = false;
+
+// Constants
+const COLORS = {
+  primary: '#00ffcc',
+  secondary: '#333',
+  background: '#0a0a0a',
+  error: '#ff0000'
+};
+
+const SOUNDS = {
+  send: 'sfx-send',
+  glitch: 'sfx-glitch',
+  melville: 'sfx-melville',
+  tarotOpen: 'sfx-tarot-open',
+  tarotDraw: 'sfx-tarot-draw'
+};
+
 // DOM Elements
 const inputEl = document.getElementById('terminal-input');
 const outputEl = document.getElementById('output');
 const sendBtn = document.getElementById('send-btn');
-const sendSound = document.getElementById('sfx-send');
-const glitchSound = document.getElementById('sfx-glitch');
-const melvilleSound = document.getElementById('sfx-melville');
-const tarotOpenSound = document.getElementById('sfx-tarot-open');
-const tarotDrawSound = document.getElementById('sfx-tarot-draw');
+const sendSound = document.getElementById(SOUNDS.send);
+const glitchSound = document.getElementById(SOUNDS.glitch);
+const melvilleSound = document.getElementById(SOUNDS.melville);
+const tarotOpenSound = document.getElementById(SOUNDS.tarotOpen);
+const tarotDrawSound = document.getElementById(SOUNDS.tarotDraw);
 
-// Print to terminal
-function print(text, color = currentOutputColor) {
+// Utility Functions
+function print(text, color = COLORS.primary) {
   const span = document.createElement('span');
   span.style.color = color;
   span.textContent = text + '\n';
   outputEl.appendChild(span);
-  requestAnimationFrame(() => {
-    outputEl.scrollTop = outputEl.scrollHeight;
-  });
+  scrollToBottom();
 }
 
-// Glitchify text
 function glitchify(text) {
   const chars = ['̷', '͟', '͜', '̶', '͡', '͠', '͢', '̸', '⸸', '⚠', '⛧'];
   return text.split('').map(char => {
@@ -42,13 +56,13 @@ function glitchify(text) {
   }).join('');
 }
 
-// Loading animation
+// Loading Functions
 let loaderInterval;
 let loaderEl = null;
 
 function startLoading() {
   const frames = ['.', '..', '...'];
-  const colors = ['#ff66cc', '#ff3399'];
+  const colors = [COLORS.primary, COLORS.primary];
   let i = 0;
 
   loaderEl = document.createElement('span');
@@ -56,12 +70,10 @@ function startLoading() {
   outputEl.appendChild(loaderEl);
 
   loaderInterval = setInterval(() => {
-    loaderEl.textContent = `> 🧠 Summoning${frames[i % frames.length]}`;
+    loaderEl.textContent = `> Summoning${frames[i % frames.length]}`;
     loaderEl.style.color = colors[i % colors.length];
     i++;
-
-    // ✅ Force scroll while loading animates
-    outputEl.scrollTop = outputEl.scrollHeight;
+    scrollToBottom();
   }, 400);
 }
 
@@ -73,25 +85,42 @@ function stopLoading() {
   }
 }
 
-// Memory logging
+// Memory Functions
 function logMemory(prompt, response) {
-  const logs = JSON.parse(localStorage.getItem('ghostlog') || '[]');
-  logs.push({ timestamp: new Date().toISOString(), prompt, response });
-  localStorage.setItem('ghostlog', JSON.stringify(logs));
+  try {
+    const logs = JSON.parse(localStorage.getItem('ghostlog') || '[]');
+    logs.push({ 
+      timestamp: new Date().toISOString(), 
+      prompt, 
+      response 
+    });
+    localStorage.setItem('ghostlog', JSON.stringify(logs));
+  } catch (error) {
+    console.error('Failed to log memory:', error);
+  }
 }
 
 function showLog() {
-  const logs = JSON.parse(localStorage.getItem('ghostlog') || '[]');
-  if (!logs.length) return print('> No ghost memories stored.', '#777');
-  logs.forEach((entry, i) => {
-    print(`\n${i + 1}. [${entry.timestamp}]`, '#ccc');
-    print(`> You: ${entry.prompt}`, '#ff66cc');
-    print(`> Ghost: ${entry.response}`, '#00ffff');
-  });
+  try {
+    const logs = JSON.parse(localStorage.getItem('ghostlog') || '[]');
+    if (!logs.length) {
+      print('> No ghost memories stored.');
+      return;
+    }
+    
+    logs.forEach((entry, i) => {
+      print(`\n${i + 1}. [${entry.timestamp}]`);
+      print(`> You: ${entry.prompt}`);
+      print(`> Ghost: ${entry.response}`);
+    });
+  } catch (error) {
+    console.error('Failed to show log:', error);
+    print('> Error accessing ghost memories.');
+  }
 }
 
-// Image to ASCII
-function imageToAscii(url, width = 80, height = 50) {
+// Image Processing
+async function imageToAscii(url, width = 80, height = 50) {
   return new Promise((resolve, reject) => {
     const canvas = document.getElementById('ascii-canvas');
     const ctx = canvas.getContext('2d');
@@ -100,141 +129,82 @@ function imageToAscii(url, width = 80, height = 50) {
     img.src = url;
 
     img.onload = () => {
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-      const imageData = ctx.getImageData(0, 0, width, height).data;
+      try {
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        const imageData = ctx.getImageData(0, 0, width, height).data;
 
-      const chars = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
-      let ascii = '';
+        const chars = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
+        let ascii = '';
 
-      for (let y = 0; y < height; y++) {
-        let line = '';
-        for (let x = 0; x < width; x++) {
-          const i = (y * width + x) * 4;
-          const r = imageData[i];
-          const g = imageData[i + 1];
-          const b = imageData[i + 2];
-          const avg = (r + g + b) / 3;
-          const index = Math.floor((avg / 255) * (chars.length - 1));
-          line += chars[index];
+        for (let y = 0; y < height; y++) {
+          let line = '';
+          for (let x = 0; x < width; x++) {
+            const i = (y * width + x) * 4;
+            const r = imageData[i];
+            const g = imageData[i + 1];
+            const b = imageData[i + 2];
+            const avg = (r + g + b) / 3;
+            const index = Math.floor((avg / 255) * (chars.length - 1));
+            line += chars[index];
+          }
+          ascii += line + '\n';
         }
-        ascii += line + '\n';
+        resolve(ascii);
+      } catch (error) {
+        reject(error);
       }
-      resolve(ascii);
     };
 
     img.onerror = () => reject(new Error('Failed to load image'));
   });
 }
 
-// Boot sequence animation
-function runBootSequence() {
+// Boot Sequence
+async function runBootSequence() {
   return new Promise((resolve) => {
-    const bootMessages = [
-      { text: '> Initializing memory subsystems...', color: '#00ffcc', delay: 300 },
-      { text: '> Loading neural interface v3.7.2...', color: '#00ffcc', delay: 400 },
-      { text: '> Decrypting quantum keys: ████████████ 100%', color: '#00ffcc', delay: 500 },
-      { text: '> ERROR: Memory corruption in sector F137', color: '#00ffcc', delay: 400 },
-      { text: '> Attempting recovery: ███████░░░ 70%', color: '#00ffcc', delay: 500 },
-      { text: '> Ghost presence detected in memory banks', color: '#00ffcc', delay: 400 },
-      { text: '> WARNING: Unregistered consciousness found', color: '#00ffcc', delay: 500 },
-      { text: '> Bypassing security protocols...', color: '#00ffcc', delay: 300 },
-      { text: '> terminal.exe v2.7.5 LOADED', color: '#00ffcc', delay: 400 },
-      { text: '> Connection established with unknown entity', color: '#00ffcc', delay: 500 },
-      { text: '🧠 terminal.exe ready. Type /manual', color: '#ffcc00', delay: 300 }
-    ];
-
-    outputEl.textContent = '';
+    // Disable input during boot
     inputEl.disabled = true;
     sendBtn.disabled = true;
+    
 
-    const bootLine = document.createElement('span');
-    outputEl.appendChild(bootLine);
-
-    let i = 0;
-    function nextMessage() {
-      if (i < bootMessages.length) {
-        const msg = bootMessages[i];
-        bootLine.textContent = msg.text;
-        bootLine.style.color = msg.color;
-        i++;
-        setTimeout(nextMessage, msg.delay);
-      } else {
-        outputEl.appendChild(document.createTextNode('\n'));
-        inputEl.disabled = false;
-        sendBtn.disabled = false;
-        inputEl.focus();
-        resolve();
-      }
-    }
-
-    nextMessage();
+    setTimeout(() => {
+      // Re-enable input and focus
+      inputEl.disabled = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
+      resolve();
+    }, 1000);
   });
 }
 
-// THEME SYSTEM
-const themes = {
-  neo: {
-    background: '#000000',
-    text: '#00ffcc',
-    accent: '#ff66cc',
-    output: '#00ffcc'
-  },
-  vapor: {
-    background: '#1f0037',
-    text: '#ff8aff',
-    accent: '#8affff',
-    output: '#ff8aff'
-  },
-  og: {
-    background: '#111111',
-    text: '#00ff00',
-    accent: '#ff0000',
-    output: '#00ff00'
-  },
-  pink: {
-    background: '#0a0a0a',
-    text: '#ff3399',
-    accent: '#ffcc00',
-    output: '#ff3399'
-  }
-};
-
-let currentOutputColor = themes.neo.output;
-
-
-function applyTheme(name) {
-  const theme = themes[name];
-  if (!theme) return;
-
-  document.body.style.background = theme.background;
-  document.body.style.color = theme.text;
-
-  document.querySelectorAll('input, select').forEach(el => {
-    el.style.color = theme.accent;
-    el.style.borderColor = theme.text;
-    el.style.background = theme.background;
-  });
-
-  document.querySelectorAll('button').forEach(el => {
-    el.style.background = theme.accent;
-    el.style.color = 'black';
-  });
-
-  currentOutputColor = theme.output;
-  localStorage.setItem('theme', name);
-}
-
-function loadSavedTheme() {
-  const saved = localStorage.getItem('theme');
-  if (saved) applyTheme(saved);
-}
-
+// Helper Functions
 function scrollToBottom() {
   requestAnimationFrame(() => {
     outputEl.scrollTop = outputEl.scrollHeight;
   });
+}
+
+async function makeApiCall(prompt, model = 'deepseek-chat') {
+  try {
+    startLoading();
+    const res = await fetch('https://deepseek-proxy.jaidenschembri1.workers.dev/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] })
+    });
+    stopLoading();
+    return (await res.json()).choices[0].message.content;
+  } catch (err) {
+    stopLoading();
+    throw err;
+  }
+}
+
+function handleError(error, message = 'An error occurred') {
+  console.error(message, error);
+  print(`⚠️ ${message}: ${error.message}`, COLORS.error);
 }
 
 export {
@@ -254,9 +224,8 @@ export {
   logMemory,
   showLog,
   imageToAscii,
-  applyTheme,
-  loadSavedTheme,
   scrollToBottom,
   runBootSequence,
+  makeApiCall,
+  handleError
 };
-

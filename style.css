@@ -1,56 +1,101 @@
-body {
-  background: black;
-  color: #00ffcc;
-  font-family: monospace;
+html, body {
   margin: 0;
-  padding: 1rem;
+  padding: 0;
+  height: 100%;
+  background: #0a0a0a;
+  color: #00ffcc;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+  line-height: 1.4;
 }
 
 #terminal {
-  max-width: 800px;
-  margin: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
 }
 
 #output {
-  white-space: pre-wrap;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  line-height: 1.4;
-  min-height: 300px;
-  max-height: calc(100vh - 180px);
+  flex: 1;
+  padding: 16px;
   overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* IE/Edge */
+  white-space: pre-wrap;
+  box-sizing: border-box;
+  scrollbar-color: #333 #0a0a0a;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  margin-bottom: 40px; /* Add space for input line */
 }
 
-/* Chrome + WebKit: hide scrollbar */
 #output::-webkit-scrollbar {
-  display: none;
+  width: 8px;
 }
 
+#output::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
 
+#output::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
 
 #input-wrapper {
   display: flex;
-  gap: 0.5rem;
+  background: #0a0a0a;
+  padding: 8px 16px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px solid #333;
+  align-items: center;
 }
 
 #terminal-input {
   flex: 1;
-  padding: 0.5rem;
-  font-size: 1rem;
-  background: black;
-  border: 1px solid #00ffcc;
-  color: #ff66cc;
+  background: transparent;
+  border: none;
+  color: #00ffcc;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  outline: none;
+  letter-spacing: 0.5px;
+  margin-left: 8px;
 }
 
-#send-btn {
-  background: #ff3399;
-  border: none;
-  color: black;
-  font-weight: bold;
-  padding: 0.5rem 1rem;
+/* Add prompt styling */
+#input-wrapper::before {
+  content: ">";
+  color: #00ffcc;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+#send-btn { 
+  background: transparent;
+  color: #00ffcc;
+  border: 1px solid #333;
+  padding: 8px 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  text-transform: uppercase;
   cursor: pointer;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+  margin-left: 16px;
+}
+
+#send-btn:hover {
+  background: #333;
+  color: #00ffcc;
+  border-color: #00ffcc;
 }
 
 #ghostlog-download {
@@ -65,7 +110,7 @@ body {
 }
 
 #ghostlog-download:hover {
-  background: #ff66cc;
+  background: #00ffcc;
 }
 
 /* 🔧 Shared Picker Menu Styles */
@@ -75,40 +120,50 @@ body {
   gap: 0.5rem;
   max-width: 300px;
   margin-top: 1rem;
+  background: #0a0a0a;
+  padding: 16px;
+  border: 1px solid #333;
+  margin-bottom: 60px; /* Add space for fixed input */
 }
 
 .picker-menu label {
-  color: #ffcc00;
-  font-family: monospace;
+  color: #00ffcc;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
 }
 
 .picker-menu select {
-  background: black;
-  color: #ff66cc;
-  border: 1px solid #00ffcc;
-  font-family: monospace;
-  font-size: 1rem;
-  padding: 0.4rem;
+  background: #0a0a0a;
+  color: #00ffcc;
+  border: 1px solid #333;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 8px;
   outline: none;
+  letter-spacing: 0.5px;
 }
 
 .picker-menu option {
-  background: black;
+  background: #0a0a0a;
   color: #00ffcc;
 }
 
 .picker-menu button {
-  background: #00ffcc;
-  color: black;
-  border: none;
-  font-weight: bold;
-  font-family: monospace;
-  padding: 0.5rem;
+  background: transparent;
+  color: #00ffcc;
+  border: 1px solid #333;
+  font-weight: normal;
+  font-family: 'Courier New', monospace;
+  padding: 8px;
   cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
 }
 
 .picker-menu button:hover {
-  background: #ff66cc;
+  background: #333;
+  border-color: #00ffcc;
 }
 
 /* 🔧 CRT Scanlines Effect (Visible + Subtle Flicker) */
@@ -133,9 +188,9 @@ body {
   mix-blend-mode: multiply;
 }
 
-/* 🌟 Subtle Text Glow (Restored to Original) */
+/* 🌟 Subtle Text Glow */
 .crt-glow {
-  text-shadow: 0 0 6px currentColor;
+  text-shadow: 0 0 4px rgba(0, 255, 204, 0.3);
 }
 
 /* 🌈 Glow Pulse Animation */
@@ -171,12 +226,12 @@ body {
 /* 👻 Haunting HUD */
 #presence-hud {
   position: fixed;
-  bottom: 1rem;
-  right: 1rem;
+  bottom: 5rem;
+  right: 3rem;
   width: 120px;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid #ff3399;
+  height: 8px;
+  background: rgba(51, 51, 51, 0.3);
+  border: 1px solid #333;
   overflow: hidden;
   z-index: 9999;
 }
@@ -184,7 +239,7 @@ body {
 #presence-bar {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #00ffcc, #ff3399);
+  background: linear-gradient(90deg, #00ffcc, #00cc99);
   transition: width 0.5s ease, background 0.5s ease;
 }
 
@@ -194,18 +249,36 @@ body {
 
 @keyframes glitchPulse {
   0% { filter: brightness(1); }
-  100% { filter: brightness(1.5) saturate(1.5); }
+  100% { filter: brightness(1.2); }
 }
 
 /* 👻 Terminal Flicker Animation */
 @keyframes terminalFlicker {
-  0% { background-color: black; }
-  25% { background-color: #220022; }
-  50% { background-color: #330000; }
-  75% { background-color: #110022; }
-  100% { background-color: black; }
+  0% { background-color: #0a0a0a; }
+  25% { background-color: #0c0c0c; }
+  50% { background-color: #0a0a0a; }
+  75% { background-color: #0c0c0c; }
+  100% { background-color: #0a0a0a; }
 }
 
 body.flickering {
-  animation: terminalFlicker 1s infinite alternate;
+  animation: terminalFlicker 2s infinite alternate;
+}
+
+#output pre {
+  white-space: pre-wrap;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+  word-break: break-all;
+}
+
+#output pre.crt-glow {
+  text-shadow: 0 0 4px rgba(0, 255, 204, 0.3);
+  color: #00ffcc;
 }

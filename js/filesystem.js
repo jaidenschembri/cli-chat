@@ -21,47 +21,73 @@ export const fileSystem = {
   export let currentPath = ['home'];
   
   export function changeDirectory(dir) {
-    if (dir === '..') {
-      if (currentPath.length > 1) {
-        currentPath.pop();
-      }
-    } else {
-      const newPath = [...currentPath, dir];
-      if (resolvePath(newPath)) {
-        currentPath = newPath;
+    try {
+      if (dir === '..') {
+        if (currentPath.length > 1) {
+          currentPath.pop();
+        }
       } else {
-        throw new Error(`No such directory: ${dir}`);
+        const newPath = [...currentPath, dir];
+        const resolved = resolvePath(newPath);
+        if (resolved && typeof resolved === 'object') {
+          currentPath = newPath;
+        } else {
+          throw new Error(`No such directory: ${dir}`);
+        }
       }
+    } catch (error) {
+      throw new Error(`Failed to change directory: ${error.message}`);
     }
   }
   
   export function listDirectory() {
-    const dir = resolvePath(currentPath);
-    return Object.keys(dir);
+    try {
+      const dir = resolvePath(currentPath);
+      if (!dir || typeof dir !== 'object') {
+        throw new Error('Invalid directory');
+      }
+      return Object.keys(dir);
+    } catch (error) {
+      throw new Error(`Failed to list directory: ${error.message}`);
+    }
   }
   
   export function readFile(filename) {
-    const dir = resolvePath(currentPath);
-    if (dir[filename]) {
-      if (typeof dir[filename] === 'string') {
-        return dir[filename];
-      } else {
-        throw new Error(`${filename} is a directory, not a file.`);
+    try {
+      const dir = resolvePath(currentPath);
+      if (!dir || typeof dir !== 'object') {
+        throw new Error('Invalid directory');
       }
-    } else {
-      throw new Error(`No such file: ${filename}`);
+      if (dir[filename]) {
+        if (typeof dir[filename] === 'string') {
+          return dir[filename];
+        } else {
+          throw new Error(`${filename} is a directory, not a file.`);
+        }
+      } else {
+        throw new Error(`No such file: ${filename}`);
+      }
+    } catch (error) {
+      throw new Error(`Failed to read file: ${error.message}`);
     }
   }
   
   function resolvePath(pathArr) {
-    let current = fileSystem;
-    for (const part of pathArr) {
-      if (current[part]) {
+    try {
+      let current = fileSystem;
+      for (const part of pathArr) {
+        if (!current || typeof current !== 'object') {
+          throw new Error(`Invalid path: ${pathArr.join('/')}`);
+        }
+        if (!current[part]) {
+          return null;
+        }
         current = current[part];
-      } else {
-        return null;
       }
+      return current;
+    } catch (error) {
+      console.error('Path resolution error:', error);
+      return null;
     }
-    return current;
   }
   
