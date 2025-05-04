@@ -64,7 +64,7 @@ async function handleInput() {
   
   if (input === '/manual') {
     const manualChart = [
-      '📖 TERMINAL MANUAL\n',
+      'TERMINAL MANUAL\n',
       '╔═════════════════════════════════════════════════════════════════════╗',
       '║ /glitchmode                ║ toggles schizo UI                      ║',
       '║ /textify [word/phrase]     ║ creates stylized text                  ║',
@@ -101,7 +101,7 @@ async function handleInput() {
   
   if (input.startsWith('/directory')) {
   const directoryChart = [
-    '📂 SYSTEM NAVIGATION COMMANDS\n',
+    'SYSTEM NAVIGATION COMMANDS\n',
     '╔═════════════════════════════════════════════════════════════╗',
     '║ ls                 ║ list files and folders                 ║',
     '║ cd [folder]        ║ enter a folder                         ║',
@@ -263,69 +263,28 @@ async function handleInput() {
     return;
   }
 
-  if (input.startsWith('/ascii ')) {
-    const text = input.replace('/ascii ', '').trim();
-    const picker = document.getElementById('ascii-picker');
-    const select = document.getElementById('ascii-font');
-    const confirm = document.getElementById('ascii-confirm');
-  
-    picker.style.display = 'block';
-    inputEl.disabled = true;
-    sendBtn.disabled = true;
-  
-    confirm.onclick = () => {
-      const font = select.value;
-      picker.style.display = 'none';
-      inputEl.disabled = false;
-      sendBtn.disabled = false;
-      inputEl.focus();
-  
-      figlet.text(text, { font }, (err, data) => {
-        if (err) return print(`⚠️ ASCII error: ${err.message}`, '#00ffcc');
-  
-        // 💥 Wrap in scrollable container (just like /image)
-        const container = document.createElement('div');
-        container.style.overflowX = 'auto';
-        container.style.width = '100%';
-  
-        const pre = document.createElement('pre');
-        pre.className = 'ascii-output';
-        pre.textContent = data;
-  
-        container.appendChild(pre);
-        outputEl.appendChild(container);
-        scrollToBottom(); // ✅ final scroll fix
-      });
-    };
-    return;
-  }
-  
   if (input.startsWith('/image')) {
     const url = input.replace('/image', '').trim();
     const upload = document.getElementById('ascii-upload');
   
     const render = async (src) => {
       try {
+        print("Note: Images with a 1:1 aspect ratio render best in terminal view.", '#888');
         startLoading();
-        const ascii = await imageToAscii(src);
+        const ascii = await imageToAscii(src); // default 80x50 still works
         stopLoading();
-  
-        // 💥 Force container to scroll, don't shrink
-        const container = document.createElement('div');
-        container.style.overflowX = 'auto';
-        container.style.width = '100%';
   
         const pre = document.createElement('pre');
         pre.className = 'ascii-output';
-        pre.style.display = 'inline-block';        // Key to keep natural width
-        pre.style.minWidth = 'min-content';        // Forces it to grow
-        pre.style.whiteSpace = 'pre';              // No wrap
+        pre.style.whiteSpace = 'pre';
+        pre.style.display = 'block';
+        pre.style.margin = '1rem 0';
+        pre.style.overflow = 'visible';
         pre.textContent = ascii;
   
-        container.appendChild(pre);
-        outputEl.appendChild(container);
+        outputEl.appendChild(pre);
         scrollToBottom();
-
+  
       } catch (err) {
         stopLoading();
         print(`⚠️ Failed to render image: ${err.message}`, '#00ffcc');
@@ -342,8 +301,10 @@ async function handleInput() {
       reader.onload = (event) => render(event.target.result);
       reader.readAsDataURL(file);
     };
+  
     return;
   }
+  
   
   if (input === '/tarot') {
     tarotOpenSound.currentTime = 0;
